@@ -1,0 +1,153 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNhZP2EGmbfKgmtH6ozgLf0",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Marwan2803/Tugas-3-Machine-Learning-/blob/main/KNN-IRIS.csv\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "from scipy.spatial.distance import euclidean\n",
+        "\n",
+        "# Dataset awal\n",
+        "data = {\n",
+        "    'X1': [40, 50, 50, 70, 80, 60],\n",
+        "    'X2': [5, 8, 7, 4, 4, 6],\n",
+        "    'X3': [60, 40, 30, 60, 80, 60],\n",
+        "    'Y': ['TOLAK', 'TERIMA', 'TOLAK', 'TERIMA', 'TERIMA', 'TERIMA']\n",
+        "}\n",
+        "\n",
+        "df = pd.DataFrame(data)\n",
+        "\n",
+        "# Data baru yang akan diprediksi\n",
+        "data_baru = np.array([50, 3, 40])\n",
+        "\n",
+        "# Fungsi untuk menghitung jarak Euclidean dengan menampilkan perhitungan secara lengkap\n",
+        "def hitung_jarak(row):\n",
+        "    x1_diff = data_baru[0] - row['X1']\n",
+        "    x2_diff = data_baru[1] - row['X2']\n",
+        "    x3_diff = data_baru[2] - row['X3']\n",
+        "\n",
+        "    print(f\"Jarak ke ({row['X1']}, {row['X2']}, {row['X3']}):\")\n",
+        "    print(f\"  ({data_baru[0]} - {row['X1']})² + ({data_baru[1]} - {row['X2']})² + ({data_baru[2]} - {row['X3']})²\")\n",
+        "    print(f\"  = ({x1_diff})² + ({x2_diff})² + ({x3_diff})²\")\n",
+        "    print(f\"  = {x1_diff**2} + {x2_diff**2} + {x3_diff**2}\")\n",
+        "\n",
+        "    jarak = np.sqrt(x1_diff**2 + x2_diff**2 + x3_diff**2)\n",
+        "\n",
+        "    print(f\"  = √({x1_diff**2 + x2_diff**2 + x3_diff**2})\")\n",
+        "    print(f\"  = {jarak:.2f}\\n\")\n",
+        "\n",
+        "    return jarak\n",
+        "\n",
+        "# Menghitung jarak Euclidean antara data baru dan setiap data dalam dataset\n",
+        "df['Jarak'] = df.apply(hitung_jarak, axis=1)\n",
+        "\n",
+        "# Mengurutkan berdasarkan jarak terkecil\n",
+        "df = df.sort_values(by='Jarak')\n",
+        "\n",
+        "# Menampilkan tabel hasil perhitungan jarak\n",
+        "print(\"Hasil Perhitungan Jarak:\")\n",
+        "print(df[['X1', 'X2', 'X3', 'Y', 'Jarak']])\n",
+        "\n",
+        "# Menentukan hasil prediksi dengan K=3 (3 tetangga terdekat)\n",
+        "K = 3\n",
+        "hasil_knn = df.iloc[:K]['Y'].mode()[0]\n",
+        "\n",
+        "print(f\"\\nPrediksi untuk data baru {data_baru}: {hasil_knn}\")"
+      ],
+      "metadata": {
+        "id": "Kap1WlX1-RbH",
+        "outputId": "1f2dc2f4-b8f0-46f1-f05f-22c0c333f96c",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 28,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Jarak ke (40, 5, 60):\n",
+            "  (50 - 40)² + (3 - 5)² + (40 - 60)²\n",
+            "  = (10)² + (-2)² + (-20)²\n",
+            "  = 100 + 4 + 400\n",
+            "  = √(504)\n",
+            "  = 22.45\n",
+            "\n",
+            "Jarak ke (50, 8, 40):\n",
+            "  (50 - 50)² + (3 - 8)² + (40 - 40)²\n",
+            "  = (0)² + (-5)² + (0)²\n",
+            "  = 0 + 25 + 0\n",
+            "  = √(25)\n",
+            "  = 5.00\n",
+            "\n",
+            "Jarak ke (50, 7, 30):\n",
+            "  (50 - 50)² + (3 - 7)² + (40 - 30)²\n",
+            "  = (0)² + (-4)² + (10)²\n",
+            "  = 0 + 16 + 100\n",
+            "  = √(116)\n",
+            "  = 10.77\n",
+            "\n",
+            "Jarak ke (70, 4, 60):\n",
+            "  (50 - 70)² + (3 - 4)² + (40 - 60)²\n",
+            "  = (-20)² + (-1)² + (-20)²\n",
+            "  = 400 + 1 + 400\n",
+            "  = √(801)\n",
+            "  = 28.30\n",
+            "\n",
+            "Jarak ke (80, 4, 80):\n",
+            "  (50 - 80)² + (3 - 4)² + (40 - 80)²\n",
+            "  = (-30)² + (-1)² + (-40)²\n",
+            "  = 900 + 1 + 1600\n",
+            "  = √(2501)\n",
+            "  = 50.01\n",
+            "\n",
+            "Jarak ke (60, 6, 60):\n",
+            "  (50 - 60)² + (3 - 6)² + (40 - 60)²\n",
+            "  = (-10)² + (-3)² + (-20)²\n",
+            "  = 100 + 9 + 400\n",
+            "  = √(509)\n",
+            "  = 22.56\n",
+            "\n",
+            "Hasil Perhitungan Jarak:\n",
+            "   X1  X2  X3       Y      Jarak\n",
+            "1  50   8  40  TERIMA   5.000000\n",
+            "2  50   7  30   TOLAK  10.770330\n",
+            "0  40   5  60   TOLAK  22.449944\n",
+            "5  60   6  60  TERIMA  22.561028\n",
+            "3  70   4  60  TERIMA  28.301943\n",
+            "4  80   4  80  TERIMA  50.009999\n",
+            "\n",
+            "Prediksi untuk data baru [50  3 40]: TOLAK\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
